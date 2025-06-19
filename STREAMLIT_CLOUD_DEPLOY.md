@@ -9,7 +9,7 @@
 - Configure:
   - Repository: Your GitHub repo
   - Branch: main
-  - **Main file path: streamlit_app.py**  ← IMPORTANT! Use this file, not run_dashboard.py
+  - **Main file path: dashboard.py**  ← IMPORTANT! Use this file directly now
   - Python version: 3.10.x
   
 ### 3. Add Secrets

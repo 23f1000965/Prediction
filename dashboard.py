@@ -1,8 +1,13 @@
 import streamlit as st
 import builtins
 
-# Page config is set in streamlit_app.py, do not set it again here
-# Otherwise it will cause a StreamlitAPIException
+# Set page config for direct execution
+st.set_page_config(
+    page_title="Game Prediction Dashboard", 
+    page_icon="🎮",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -14,8 +19,16 @@ from ml_predictor import GamePredictor
 from data_manager import add_new_game_data
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from .env file (for local development)
 load_dotenv()
+
+# Load secrets from Streamlit secrets manager (for Streamlit Cloud)
+if hasattr(st, 'secrets') and 'supabase' in st.secrets:
+    os.environ['SUPABASE_URL'] = st.secrets['supabase']['url']
+    os.environ['SUPABASE_KEY'] = st.secrets['supabase']['key']
+    
+    # Log the secret loading (won't show sensitive values)
+    print("Loaded Supabase credentials from Streamlit secrets")
 
 # Always use Supabase for data storage
 USE_SUPABASE = True
@@ -1865,10 +1878,5 @@ os.makedirs("models", exist_ok=True)
 # Load prediction history from Supabase
 load_prediction_history()
 
-def run_dashboard():
-    """
-    Main entry point for the dashboard. This function is imported and called
-    from streamlit_app.py when deployed on Streamlit Cloud.
-    """
-    # Call the main dashboard setup - will use the code that's already in this file
-    setup_dashboard()
+# The dashboard code runs directly in this file
+# No need for a separate run_dashboard() function
