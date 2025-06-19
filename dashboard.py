@@ -1864,3 +1864,11 @@ os.makedirs("models", exist_ok=True)
 
 # Load prediction history from Supabase
 load_prediction_history()
+
+def run_dashboard():
+    """
+    Main entry point for the dashboard. This function is imported and called
+    from streamlit_app.py when deployed on Streamlit Cloud.
+    """
+    # Call the main dashboard setup - will use the code that's already in this file
+    setup_dashboard()

@@ -19,7 +19,6 @@ font = "sans serif"
 
 [runner]
 magicEnabled = true
-fastRerenderEnabled = true
 
 [logger]
 level = "info"
