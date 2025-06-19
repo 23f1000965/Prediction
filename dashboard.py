@@ -42,12 +42,19 @@ except ImportError as e:
 def get_supabase_client():
     """Initialize and return the Supabase client"""
     try:
-        url = os.getenv("SUPABASE_URL")
-        key = os.getenv("SUPABASE_KEY")
+        # First try to get credentials from Streamlit secrets
+        if hasattr(st, 'secrets') and 'supabase' in st.secrets:
+            url = st.secrets['supabase']['url']
+            key = st.secrets['supabase']['key']
+            print("✅ Found Supabase credentials in Streamlit secrets")
+        else:
+            # Fall back to environment variables
+            url = os.getenv("SUPABASE_URL")
+            key = os.getenv("SUPABASE_KEY")
         
         if not url or not key:
-            print("⚠️ Supabase URL or key not found in environment variables.")
-            st.warning("Supabase URL or key not found in environment variables. Using local data.")
+            print("⚠️ Supabase URL or key not found in environment variables or secrets.")
+            st.warning("Supabase URL or key not found. Using local data.")
             return None
             
         print(f"Connecting to Supabase URL: {url}")
