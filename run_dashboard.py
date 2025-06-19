@@ -24,10 +24,11 @@ def setup_supabase_env():
     
     # Ensure the required packages are installed
     try:
+        # Try the new package name first
         import supabase
     except ImportError:
         print("Installing required packages...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "supabase-py", "python-dotenv"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "supabase>=1.0.3", "python-dotenv"])
         print("Packages installed successfully")
     
     # Initialize Supabase client and helper functions

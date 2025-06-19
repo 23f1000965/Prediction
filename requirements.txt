@@ -11,4 +11,4 @@ xgboost==1.7.6
 lightgbm==3.3.5
 joblib==1.2.0
 pytz==2023.3
-supabase-py==2.0.0
+supabase>=1.0.3
