@@ -1,0 +1,2 @@
+Best model: RandomForest
+Features: color_encoded_lag_1,color_encoded_lag_2,color_encoded_lag_3,number_encoded,number_encoded_lag_1,color_streak,is_even,even_odd_switch,hour,minute

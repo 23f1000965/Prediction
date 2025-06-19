@@ -1,0 +1,2 @@
+Best model: XGBoost
+Features: number_encoded_lag_1,number_encoded_lag_2,number_encoded_lag_3,color_encoded,color_encoded_lag_1,number_streak,is_even,even_odd_switch,hour,minute
