@@ -1,13 +1,8 @@
 import streamlit as st
 import builtins
 
-# Set page config for direct execution
-st.set_page_config(
-    page_title="Game Prediction Dashboard", 
-    page_icon="🎮",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# Page config is set in streamlit_app.py, do not set it again here
+# Otherwise it will cause a StreamlitAPIException
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -19,16 +14,8 @@ from ml_predictor import GamePredictor
 from data_manager import add_new_game_data
 from dotenv import load_dotenv
 
-# Load environment variables from .env file (for local development)
+# Load environment variables
 load_dotenv()
-
-# Load secrets from Streamlit secrets manager (for Streamlit Cloud)
-if hasattr(st, 'secrets') and 'supabase' in st.secrets:
-    os.environ['SUPABASE_URL'] = st.secrets['supabase']['url']
-    os.environ['SUPABASE_KEY'] = st.secrets['supabase']['key']
-    
-    # Log the secret loading (won't show sensitive values)
-    print("Loaded Supabase credentials from Streamlit secrets")
 
 # Always use Supabase for data storage
 USE_SUPABASE = True
@@ -1472,6 +1459,95 @@ def load_prediction_history():
         import traceback
         print(traceback.format_exc())
 
+# Function to get overall prediction statistics from Supabase
+def get_overall_prediction_stats():
+    """Get overall prediction statistics from Supabase database"""
+    try:
+        # Only proceed if Supabase is available
+        if not (USE_SUPABASE and SUPABASE_READY and supabase_client is not None):
+            print("Supabase not available for fetching prediction stats")
+            return None
+            
+        print("Fetching overall prediction statistics from Supabase...")
+        predictions_df = load_prediction_data_from_supabase()
+        
+        if predictions_df is None or predictions_df.empty:
+            print("No prediction data found in Supabase")
+            return None
+        
+        total_predictions = len(predictions_df)
+        
+        # Initialize counters
+        color_stats = {
+            'total': 0,
+            'correct': 0,
+            'accuracy': 0
+        }
+        
+        number_stats = {
+            'total': 0,
+            'correct': 0,
+            'accuracy': 0
+        }
+        
+        # Count predictions with actual results
+        predictions_with_results = 0
+        
+        # Process the data
+        for _, row in predictions_df.iterrows():
+            # Check if this prediction has actual results
+            has_actual_results = (
+                'actual_color' in row and not pd.isna(row['actual_color']) and 
+                'actual_number' in row and not pd.isna(row['actual_number'])
+            )
+            
+            if has_actual_results:
+                predictions_with_results += 1
+                
+                # Process color predictions
+                if 'correct_color' in row and not pd.isna(row['correct_color']):
+                    color_stats['total'] += 1
+                    # Convert to boolean if it's a string
+                    if isinstance(row['correct_color'], str):
+                        is_correct = row['correct_color'].lower() == 'true'
+                    else:
+                        is_correct = bool(row['correct_color'])
+                        
+                    if is_correct:
+                        color_stats['correct'] += 1
+                
+                # Process number predictions
+                if 'correct_number' in row and not pd.isna(row['correct_number']):
+                    number_stats['total'] += 1
+                    # Convert to boolean if it's a string
+                    if isinstance(row['correct_number'], str):
+                        is_correct = row['correct_number'].lower() == 'true'
+                    else:
+                        is_correct = bool(row['correct_number'])
+                        
+                    if is_correct:
+                        number_stats['correct'] += 1
+        
+        # Calculate accuracy percentages
+        if color_stats['total'] > 0:
+            color_stats['accuracy'] = (color_stats['correct'] / color_stats['total']) * 100
+            
+        if number_stats['total'] > 0:
+            number_stats['accuracy'] = (number_stats['correct'] / number_stats['total']) * 100
+        
+        return {
+            'total_predictions': total_predictions,
+            'predictions_with_results': predictions_with_results,
+            'color_stats': color_stats,
+            'number_stats': number_stats
+        }
+        
+    except Exception as e:
+        print(f"Error getting overall prediction stats: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        return None
+
 # Main dashboard
 st.title("Game Prediction Dashboard")
 
@@ -1877,6 +1953,3 @@ os.makedirs("models", exist_ok=True)
 
 # Load prediction history from Supabase
 load_prediction_history()
-
-# The dashboard code runs directly in this file
-# No need for a separate run_dashboard() function
