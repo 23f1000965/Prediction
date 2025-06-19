@@ -11,7 +11,7 @@ xgboost==1.7.6
 lightgbm==3.3.5
 joblib==1.2.0
 pytz==2023.3
-supabase>=1.0.3
+supabase==1.0.3
 plotly==5.18.0
 watchdog==3.0.0
 protobuf==3.20.0
